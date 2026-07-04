@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cockpit — SkillPilot AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a href="/" class="brand">
+      <svg width="24" height="24" viewBox="0 0 26 26" fill="none">
+        <circle cx="13" cy="13" r="11.5" stroke="#45e0d5" stroke-width="1.4"/>
+        <path d="M13 3 L13 8 M13 18 L13 23 M3 13 L8 13 M18 13 L23 13" stroke="#45e0d5" stroke-width="1.4"/>
+        <circle cx="13" cy="13" r="3" fill="#ffb020"/>
+      </svg>
+      SkillPilot AI
+    </a>
+
+    <a class="side-link active" data-view="view-profile"><span class="dot"></span> Flight profile</a>
+    <a class="side-link" data-view="view-resume"><span class="dot"></span> Resume analysis</a>
+    <a class="side-link" data-view="view-gap"><span class="dot"></span> Skill gap</a>
+    <a class="side-link" data-view="view-roadmap"><span class="dot"></span> Roadmap</a>
+    <a class="side-link" data-view="view-courses"><span class="dot"></span> Courses &amp; projects</a>
+    <a class="side-link" data-view="view-progress"><span class="dot"></span> Progress</a>
+
+    <div class="sidebar-foot" id="system-status">checking agent link…</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ============================ PROFILE / ONBOARD ============================ -->
+    <section class="view active" id="view-profile">
+      <div class="topbar">
+        <h2>Flight profile</h2>
+        <span class="badge" id="badge-status">not onboarded</span>
+      </div>
+
+      <div class="panel">
+        <h3>Tell your Planner Agent who's flying</h3>
+        <p class="hint">This creates (or resumes) your student profile. SkillPilot AI remembers you by email across sessions.</p>
+        <div class="form-grid">
+          <div class="two-col">
+            <div class="field">
+              <label>Full name</label>
+              <input type="text" id="in-name" placeholder="Asha Rao" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="in-email" placeholder="asha@university.edu" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Target role</label>
+            <select id="in-role">
+              <option value="">Select a target role…</option>
+              <option>Software Engineer</option>
+              <option>Data Analyst</option>
+              <option>Data Scientist</option>
+              <option>Machine Learning Engineer</option>
+              <option>Frontend Developer</option>
+              <option>Backend Developer</option>
+              <option>Full Stack Developer</option>
+              <option>Product Manager</option>
+              <option>DevOps Engineer</option>
+              <option>Cybersecurity Analyst</option>
+              <option value="__custom">Other (type below)</option>
+            </select>
+          </div>
+          <div class="field" id="custom-role-field" style="display:none;">
+            <label>Custom target role</label>
+            <input type="text" id="in-role-custom" placeholder="e.g. Growth Marketer" />
+          </div>
+          <button class="btn btn-primary btn-block" id="btn-onboard">Save flight profile →</button>
+          <div class="loader" id="loader-onboard"><div class="spinner"></div> Registering with Planner Agent…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ RESUME ============================ -->
+    <section class="view" id="view-resume">
+      <div class="topbar"><h2>Resume analysis</h2></div>
+      <div class="panel">
+        <h3>Upload your resume</h3>
+        <p class="hint">.pdf, .docx, or .txt — the Resume Analysis Agent extracts your skills and flags improvements.</p>
+        <label class="field">
+          <div class="file-drop" id="file-drop-label">Click to choose a file, or drag one here</div>
+          <input type="file" id="in-resume" accept=".pdf,.docx,.txt" style="display:none;" />
+        </label>
+        <div class="loader" id="loader-resume"><div class="spinner"></div> Resume Analysis Agent reading your file…</div>
+      </div>
+
+      <div class="panel" id="panel-resume-results" style="display:none;">
+        <h3>Extracted skills</h3>
+        <div class="chip-list" id="resume-skills"></div>
+        <h3 style="margin-top:22px;">Improvement suggestions</h3>
+        <ul class="suggestion-list" id="resume-suggestions"></ul>
+      </div>
+    </section>
+
+    <!-- ============================ SKILL GAP ============================ -->
+    <section class="view" id="view-gap">
+      <div class="topbar"><h2>Skill gap</h2></div>
+      <div class="panel">
+        <h3>Generate your gap analysis</h3>
+        <p class="hint">Uses your resume skills (if uploaded) plus your target role to compute readiness.</p>
+        <div class="two-col">
+          <div class="field">
+            <label>Weeks available</label>
+            <input type="number" id="in-weeks" value="12" min="4" max="24" />
+          </div>
+          <div class="field">
+            <label>Add extra skills you have (comma separated)</label>
+            <input type="text" id="in-extra-skills" placeholder="e.g. Java, Figma" />
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-generate">Run full pipeline →</button>
+        <div class="loader" id="loader-plan"><div class="spinner"></div> Planner Agent coordinating Goal · Skill · Roadmap · Recommendation agents…</div>
+      </div>
+
+      <div id="gap-results" style="display:none;">
+        <div class="stat-row">
+          <div class="stat-box"><div class="v" id="stat-readiness">—</div><div class="l">Readiness score</div></div>
+          <div class="stat-box"><div class="v" id="stat-have">—</div><div class="l">Skills matched</div></div>
+          <div class="stat-box"><div class="v" id="stat-missing">—</div><div class="l">Skills missing</div></div>
+          <div class="stat-box"><div class="v" id="stat-weeks">—</div><div class="l">Weeks planned</div></div>
+        </div>
+        <div class="panel" style="display:flex; gap:28px; align-items:center; flex-wrap:wrap;">
+          <div id="gap-gauge" style="width:160px;height:160px; flex-shrink:0;"></div>
+          <div style="flex:1; min-width:220px;">
+            <h3>Readiness readout</h3>
+            <p class="hint" id="gap-insight-text">—</p>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Have vs. missing</h3>
+          <div class="chip-list" id="chips-have"></div>
+          <div class="chip-list" id="chips-missing" style="margin-top:10px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ ROADMAP ============================ -->
+    <section class="view" id="view-roadmap">
+      <div class="topbar"><h2>Roadmap</h2></div>
+      <div class="panel" id="roadmap-empty">
+        <div class="empty-state">
+          <div class="icon">🛣️</div>
+          <p>Run the full pipeline from the Skill gap tab to generate your roadmap.</p>
+        </div>
+      </div>
+      <div class="stack" id="roadmap-list"></div>
+    </section>
+
+    <!-- ============================ COURSES ============================ -->
+    <section class="view" id="view-courses">
+      <div class="topbar"><h2>Courses &amp; projects</h2></div>
+      <div class="panel" id="courses-empty">
+        <div class="empty-state">
+          <div class="icon">📚</div>
+          <p>Run the full pipeline from the Skill gap tab to get recommendations.</p>
+        </div>
+      </div>
+      <div class="panel" id="panel-courses" style="display:none;">
+        <h3>Recommended courses</h3>
+        <div id="course-list"></div>
+      </div>
+      <div class="panel" id="panel-projects" style="display:none;">
+        <h3>Portfolio project ideas</h3>
+        <ul class="suggestion-list" id="project-list"></ul>
+      </div>
+    </section>
+
+    <!-- ============================ PROGRESS ============================ -->
+    <section class="view" id="view-progress">
+      <div class="topbar"><h2>Progress</h2></div>
+      <div class="panel" id="progress-empty">
+        <div class="empty-state">
+          <div class="icon">📈</div>
+          <p>Once your roadmap exists, milestones to track will show up here.</p>
+        </div>
+      </div>
+      <div class="panel" id="panel-progress" style="display:none;">
+        <h3>Milestones</h3>
+        <p class="hint">Check items off as you complete them — the Memory &amp; Progress Agent remembers this next time you log in.</p>
+        <div id="milestone-list"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/gauge.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
